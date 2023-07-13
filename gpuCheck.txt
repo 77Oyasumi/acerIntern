@@ -1,0 +1,94 @@
+import torch
+use_cuda = torch.cuda.is_available()
+
+torch.cuda.current_device()
+
+torch.cuda.device_count()
+
+torch.cuda.get_device_name(0)
+
+import torch
+import torch.nn as nn
+
+# 確認可用的 GPU 數量
+device_count = torch.cuda.device_count()
+print("可用的 GPU 數量：", device_count)
+
+# 檢查是否有至少兩個可用的 GPU
+if device_count < 2:
+    print("系統上的 GPU 數量不足，無法在兩個 GPU 上運行程式碼。")
+    exit()
+
+# 定義模型
+class MyModel(nn.Module):
+    def __init__(self):
+        super(MyModel, self).__init__()
+        self.fc = nn.Linear(10, 5)
+
+    def forward(self, x):
+        return self.fc(x)
+
+# 建立模型
+model = MyModel()
+
+# 指定兩個 GPU 的 device IDs
+device1 = torch.device("cuda:0")
+device2 = torch.device("cuda:1")
+
+# 將模型移動到第一個 GPU
+model.to(device1)
+
+# 在第一個 GPU 上創建輸入張量
+input_tensor1 = torch.randn(10, 10).to(device1)
+
+# 建立模型的複本，移動到第二個 GPU
+model2 = MyModel()
+model2.to(device2)
+
+# 在第二個 GPU 上創建輸入張量
+input_tensor2 = torch.randn(10, 10).to(device2)
+
+# 在兩個 GPU 上執行計算
+with torch.cuda.device(device1):
+    output1 = model(input_tensor1)
+
+with torch.cuda.device(device2):
+    output2 = model2(input_tensor2)
+
+# 將結果移回 CPU 或合併結果
+output1 = output1.to("cpu")
+output2 = output2.to("cpu")
+merged_output = torch.cat([output1, output2], dim=0)
+
+print("計算結果：", merged_output)
+
+import torch
+
+# 確認可用的 GPU 數量
+device_count = torch.cuda.device_count()
+print("可用的 GPU 數量：", device_count)
+
+# 檢查是否有至少兩個可用的 GPU
+if device_count < 2:
+    print("系統上的 GPU 數量不足，無法在兩個 GPU 上運行程式碼。")
+    exit()
+
+# 指定兩個 GPU 的 device IDs
+device1 = torch.device("cuda:0")
+device2 = torch.device("cuda:1")
+
+# 在第一個 GPU 上進行運算
+with torch.cuda.device(device1):
+    # 建立模型
+    model1 = MyModel().to(device1)
+    input_tensor1 = torch.randn(10, 10).to(device1)
+    output1 = model1(input_tensor1)
+    print("第一個 GPU 上的計算結果：", output1)
+
+# 在第二個 GPU 上進行運算
+with torch.cuda.device(device2):
+    # 建立模型
+    model2 = MyModel().to(device2)
+    input_tensor2 = torch.randn(10, 10).to(device2)
+    output2 = model2(input_tensor2)
+    print("第二個 GPU 上的計算結果：", output2)
